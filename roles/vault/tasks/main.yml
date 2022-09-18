@@ -1,69 +1,8 @@
 ---
-- name: Ensure 'unzip' is installed
-  apt:
-    name: unzip
-    state: present
-    update_cache: yes
+- name: Install vault
+  include: install.yml
+  tags: install
 
-- name: Download and unzip vault binary file
-  unarchive:
-    src: 'https://releases.hashicorp.com/vault/{{ vault_version }}/vault_{{ vault_version }}_linux_amd64.zip'
-    dest: /usr/bin/
-    remote_src: yes
-
-- name: Ensure group 'vault' exists
-  group:
-    name: '{{ vault_group }}'
-    state: present
-
-- name: Ensure user 'vault' exists
-  user:
-    name: '{{ vault_user }}'
-    group: '{{ vault_group }}'
-    create_home: yes
-    home: '{{ vault_home_dir }}'
-    shell: /bin/false
-    system: yes
-
-- name: Ensure directory '{{ vault_data_dir }}' exists
-  ansible.builtin.file:
-    path: '{{ vault_data_dir }}'
-    state: directory
-    owner: '{{ vault_user }}'
-    group: '{{ vault_group }}'
-    mode: '0755'
-
-- name: Ensure directory '{{ vault_keys_dir }}' exists
-  ansible.builtin.file:
-    path: '{{ vault_keys_dir }}'
-    state: directory
-    owner: '{{ vault_user }}'
-    group: '{{ vault_group }}'
-    mode: '0755'
-
-- name: Template 'vault.env' file to '{{ vault_home_dir }}'
-  template:
-    src: vault.env.j2
-    dest: '{{ vault_home_dir }}/vault.env'
-    owner: '{{ vault_user }}'
-    group: '{{ vault_group }}'
-    mode: '0600'
-  notify:
-    - Restart vault
-
-- name: Template 'vault.hcl' file to '{{ vault_home_dir }}'
-  template:
-    src: vault.hcl.j2
-    dest: '{{ vault_home_dir }}/vault.hcl'
-    owner: '{{ vault_user }}'
-    group: '{{ vault_group }}'
-    mode: '0600'
-  notify:
-    - Restart vault
-
-- name: Template 'vault.service' file to '/lib/systemd/system'
-  template:
-    src: vault.service.j2
-    dest: '/lib/systemd/system/vault.service'
-  notify:
-    - Restart vault
+- name: Initialize vault
+  include: initialize.yml
+  tags: initialize

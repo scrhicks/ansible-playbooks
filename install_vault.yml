@@ -2,6 +2,8 @@
 - hosts: vault
   become: yes
   roles:
-    - vault
+    - role: vault
+      tags: install
   vars:
+    vault_version: 1.11.3
     vault_node_ips: "{{ groups['vault'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | list }}"

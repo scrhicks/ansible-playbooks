@@ -6,7 +6,7 @@
 
 - name: Parse output of vault stauts
   set_fact:
-    vault_status_parsed: '{{ vault_status_results.stdout | from_json }}''
+    vault_status_parsed: '{{ vault_status_results.stdout | from_json }}'
 
 - name: Initialize Vault
   shell: 'vault operator init -key-shares={{ vault_key_shares }} -key-threshold={{ vault_key_threshold }} -format json'
@@ -22,6 +22,8 @@
   copy:
     dest: '{{ vault_keys_dir }}/unseal_key_{{ item.0 }}'
     content: '{{ item.1 }}'
+    owner: '{{ vault_user }}'
+    group: '{{ vault_group }}'
   with_indexed_items: '{{ vault_init_parsed.unseal_keys_hex }}'
   delegate_to: localhost
   when: vault_status_parsed.initialized is false
@@ -30,5 +32,7 @@
   copy:
     content: '{{ vault_init_parsed.root_token }}'
     dest: '{{ vault_keys_dir }}/rootkey'
+    owner: '{{ vault_user }}'
+    group: '{{ vault_group }}'
   delegate_to: localhost
   when: vault_status_parsed.initialized is false
