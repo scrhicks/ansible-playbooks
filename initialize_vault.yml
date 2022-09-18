@@ -1,6 +1,4 @@
 ---
 - hosts: 10.250.8.11
-  become: yes
   roles:
-    - role: vault
-      tags: initialize
+    - vault
