@@ -1,0 +1,7 @@
+---
+- hosts: vault
+  become: yes
+  roles:
+    - vault
+  vars:
+    vault_node_ips: "{{ groups['vault'] | map('extract', hostvars, ['ansible_eth1', 'ipv4', 'address']) | list }}"

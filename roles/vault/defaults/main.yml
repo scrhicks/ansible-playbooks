@@ -1,0 +1,18 @@
+---
+vault_version: 1.11.3
+# User
+vault_user: vault
+vault_group: vault
+# Directories
+vault_home_dir: /etc/vault.d
+vault_data_dir: /opt/vault/data
+vault_keys_dir: /opt/vault/keys
+# Cluster
+vault_cluster_name: vault
+# Keys
+vault_key_shares: 1
+vault_key_threshold: 1
+# TLS
+vault_tls_cert_file: /etc/ssl/private/vault/vault.pem
+vault_tls_key_file: /etc/ssl/private/vault/vault.key
+vault_tls_min_version: tls13

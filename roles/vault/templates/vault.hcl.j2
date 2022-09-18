@@ -1,0 +1,28 @@
+cluster_name  = "{{ vault_cluster_name }}"
+log_level     = "INFO"
+ui            = true
+disable_mlock = false
+
+api_addr     = "https://{{ ansible_eth1.ipv4.address }}:8200"
+cluster_addr = "https://{{ ansible_eth1.ipv4.address }}:8201"
+
+listener "tcp" {
+  address         = "0.0.0.0:8200"
+  cluster_address = "0.0.0.0:8201"
+  
+  tls_cert_file   = "{{ vault_tls_cert_file }}"
+  tls_key_file    = "{{ vault_tls_key_file }}"
+  tls_min_version = "{{ vault_tls_min_version }}"
+}
+
+storage "raft" {
+  path                   = "{{ vault_data_dir }}"
+  node_id                = "{{ ansible_hostname }}"
+  performance_multiplier = 3
+
+  {% for host in vault_node_ips -%}
+  retry_join {
+    leader_api_addr = "https://{{ host }}:8200"
+  }
+  {% endfor %}
+}

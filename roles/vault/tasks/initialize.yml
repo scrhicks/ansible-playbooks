@@ -1,0 +1,34 @@
+---
+- name: Gathering vault status
+  shell: 'vault status -format=json'
+  register: vault_status_results
+  failed_when: vault_status_results.rc != 2
+
+- name: Parse output of vault stauts
+  set_fact:
+    vault_status_parsed: '{{ vault_status_results.stdout | from_json }}''
+
+- name: Initialize Vault
+  shell: 'vault operator init -key-shares={{ vault_key_shares }} -key-threshold={{ vault_key_threshold }} -format json'
+  register: vault_init_results
+  when: vault_status_parsed.initialized is false
+
+- name: Parse output of vault init
+  set_fact:
+    vault_init_parsed: '{{ vault_init_results.stdout | from_json }}'
+  when: vault_status_parsed.initialized is false
+
+- name: Write unseal keys to files
+  copy:
+    dest: '{{ vault_keys_dir }}/unseal_key_{{ item.0 }}'
+    content: '{{ item.1 }}'
+  with_indexed_items: '{{ vault_init_parsed.unseal_keys_hex }}'
+  delegate_to: localhost
+  when: vault_status_parsed.initialized is false
+
+- name: Write root token to file
+  copy:
+    content: '{{ vault_init_parsed.root_token }}'
+    dest: '{{ vault_keys_dir }}/rootkey'
+  delegate_to: localhost
+  when: vault_status_parsed.initialized is false
