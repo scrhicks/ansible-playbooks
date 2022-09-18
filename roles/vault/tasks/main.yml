@@ -1,8 +1,8 @@
 ---
 - name: Install vault
-  include: install.yml
+  include_tasks: install.yml
   tags: install
 
 - name: Initialize vault
-  include: initialize.yml
+  include_tasks: initialize.yml
   tags: initialize
